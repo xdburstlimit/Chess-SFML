@@ -10,7 +10,6 @@ Game::Game(std::string name1, std::string name2){
     player2.setColour('B');
 
     currentPlayer = &player1;
-
 }
 
 Game::~Game(){ // deletes remaining pieces on board that is dynamically allocated 
@@ -44,6 +43,12 @@ void Game::loadPosition(){
     
 }
 
+void Game::loadPromotions(){
+    for(int i{}; i < 4; ++i){
+        buttons[i].setPosition(0,100*i);
+    }
+}
+
 void Game::switchTurn(){
     if(currentPlayer == &player1){
         currentPlayer = &player2;
@@ -73,14 +78,59 @@ void Game::enPassantRemoval(int x, int y){// removes enPassant bool after turn s
             
         }
     }
+}
 
+void Game::enPassantCapture(Vector2f newPos, float& add_x_w, float& add_x_b){
+    if(currentPlayer->getColour() == 'W'){
+        for(int i{}; i < 32; ++i){
+            if(f[i].getPosition().x == newPos.x && f[i].getPosition().y == newPos.y + size){
+                f[i].setPosition(Vector2f(1100 + add_x_w, 100));
+                add_x_w = add_x_w + 10;        
+            }
+        }    
+    }else if(currentPlayer->getColour()=='B'){
+        for(int i{}; i < 32; ++i){
+            if(f[i].getPosition().x == newPos.x && f[i].getPosition().y == newPos.y - size){
+                f[i].setPosition(Vector2f(1100 + add_x_w, 100));
+                add_x_w = add_x_w + 10;        
+            }
+        }
+
+    }
+}
+
+void Game::guiCapture(Vector2f newPos, float& add_x_w, float& add_x_b){
+    for(int i{}; i < 32; ++i){// code to check if there is a sprite at the newPos
+        if(f[i].getPosition().x == newPos.x && f[i].getPosition().y == newPos.y){
+            if(currentPlayer->getColour()=='W'){
+                f[i].setPosition(Vector2f(1100 + add_x_w, 100));
+                add_x_w = add_x_w + 10;
+            }
+            else if(currentPlayer->getColour()=='B'){
+                f[i].setPosition(Vector2f(1100 + add_x_b, 924-50));
+                add_x_b = add_x_b + 10;
+            }
+        }
+    }
+
+}
+
+void Game::guiCastle(Vector2f newPos){
+    for(int i{}; i < 32; ++i){
+        if(f[i].getPosition().x == newPos.x + size && f[i].getPosition().y == newPos.y){
+            f[i].setPosition(newPos.x-size, newPos.y);
+        }else if(f[i].getPosition().x == newPos.x - 2*size && f[i].getPosition().y == newPos.y){
+            f[i].setPosition(newPos.x+size, newPos.y);
+        }
+    }
 }
 
 void Game::start(){
     //initialising window and pieces
     Vector2u window_res = {1024,1024};
     sf::RenderWindow window(sf::VideoMode({window_res.x + 384, window_res.y}), "Chess");
-    Texture t1,R,N,B,Q,K,P,r,n,b,q,k,p;
+
+    Texture t1,R,N,B,Q,K,P,r,n,b,q,k,p, b1, b2, b3, b4;
     t1.loadFromFile("assets/board.png");
 
     //white pieces
@@ -98,7 +148,18 @@ void Game::start(){
     q.loadFromFile("assets/bq.png");
     k.loadFromFile("assets/bk.png");
     p.loadFromFile("assets/bp.png");
-    
+
+    //buttons
+    b1.loadFromFile("assets/buttons/queen.png");
+    b2.loadFromFile("assets/buttons/bishop.png");
+    b3.loadFromFile("assets/buttons/knight.png");
+    b4.loadFromFile("assets/buttons/rook.png");
+
+    buttons[0].setTexture(b1);
+    buttons[1].setTexture(b2);
+    buttons[2].setTexture(b3);
+    buttons[3].setTexture(b4);
+
     Sprite board(t1);
     //special white
     f[0].setTexture(R);
@@ -110,14 +171,9 @@ void Game::start(){
     f[6].setTexture(N);
     f[7].setTexture(R);
     //pawns
-    f[8].setTexture(P);
-    f[9].setTexture(P);
-    f[10].setTexture(P);
-    f[11].setTexture(P);
-    f[12].setTexture(P);
-    f[13].setTexture(P);
-    f[14].setTexture(P);
-    f[15].setTexture(P);
+    for(int i{8}; i < 16; ++i){
+        f[i].setTexture(P);
+    }
 
     //special black
     f[16].setTexture(r);
@@ -129,14 +185,12 @@ void Game::start(){
     f[22].setTexture(n);
     f[23].setTexture(r);
     //pawns
-    f[24].setTexture(p);
-    f[25].setTexture(p);
-    f[26].setTexture(p);
-    f[27].setTexture(p);
-    f[28].setTexture(p);
-    f[29].setTexture(p);
-    f[30].setTexture(p);
-    f[31].setTexture(p);
+    
+    for(int i{24}; i < 32; ++i){
+        f[i].setTexture(p);
+    }
+
+    //buttons for promotion window
 
     loadPosition();
 
@@ -148,21 +202,28 @@ void Game::start(){
     bool not_nullptr = false;
     bool isValid_P = false;
     bool piece_selected = false;
+    bool promote_white = false;
+    bool promote_black = false;
     int piece_x = 0, piece_y = 0;
     float dx = 0, dy = 0;
     int mp{};
     float add_x_w = 0; // for when pieces get captured
     float add_x_b = 0;
+    float px{};
+    float py{};
     play_board.printBoard();
 
     /*
         TODO:
-        *implement GUI code for enPassant Capture
-        *implement GUI code for castling
-        *implement GUI code for pawn promotion
         *implement Check Logic(highlight king square with red if in check)
         *implement Checkmate Logic()
 
+        OPTIONAL:
+        *add sounds for moving pieces
+        *add sound when king is in check.
+
+        ORDER IS IN LISTED IMPORTANCE
+        
         Finished:
         *implement ValidPiece detection(reason why program is segfaulting when pressing empty blocks, too quickly after moving)
             -need to add a nullptr check/// done
@@ -172,7 +233,10 @@ void Game::start(){
         *need to add bounds checking if sprite is inside board area. // done
         *need to takeaway sprite when the piece gets taken idk
             -maybe do a check to see if there is a sprite at the newPos and if so then delete in valid Move block //done
-        ORDER IS IN LISTED IMPORTANCE
+        *implement GUI code for enPassant Capture   //done
+        *implement GUI code for castling //done
+        *implement GUI code for pawn promotion //done
+        
     
     
     
@@ -197,8 +261,8 @@ void Game::start(){
                                     isMove = true; mp= i;
                                     dx = pos.x - f[i].getPosition().x;
                                     dy = pos.y - f[i].getPosition().y;
-                                    piece_x = int(pos.x/size);          //in the  x_board=y_sfml and y_board=x_sfml
-                                    piece_y = int(pos.y/size);
+                                    piece_x = temp_x;          //in the  x_board=y_sfml and y_board=x_sfml
+                                    piece_y = temp_y;
                                     piece_selected = true;
                                 }
                             }
@@ -211,36 +275,99 @@ void Game::start(){
                         isMove = false;
                         Vector2f p = f[mp].getPosition() + Vector2f(size/2,size/2);           //selected sprite's position
                         Vector2f newPos = Vector2f(size*int(p.x/size)+offset,size*int(p.y/size)+offset);        //new position of sprite
-                       
-                        
+                        std::pair<int,int> dest(int(p.x/size),int(p.y/size));
                         if(newPos.x < float(window_res.x) && newPos.y < float(window_res.y)){
-                        
-                            isValid_M = play_board.isValidMoveB(piece_y, piece_x, int(p.y/size), int(p.x/size), currentPlayer->getColour());
+                            isValid_M = play_board.isValidMoveB(piece_y, piece_x, dest.second, dest.first, currentPlayer->getColour());
+
                             if(isValid_M){// if move is valid
-                                for(int i{}; i < 32; ++i){// code to check if there is a sprite at the newPos
-                                    if(f[i].getPosition().x == newPos.x && f[i].getPosition().y == newPos.y){
-                                        if(currentPlayer->getColour()=='W'){
-                                            f[i].setPosition(Vector2f(1100 + add_x_w, 100));
-                                            add_x_w = add_x_w + 10;
+                                guiCapture(newPos,add_x_w,add_x_b);
+                                
+                                if(play_board.getSymbolB(piece_y,piece_x)== 'P' || play_board.getSymbolB(piece_y,piece_x) == 'p')
+                                    enPassantCapture(newPos,add_x_w,add_x_b);
+                                
+                                bool isKing = play_board.getSymbolB(piece_y,piece_x)== 'K' || play_board.getSymbolB(piece_y,piece_x) == 'k';
+                                bool diff2 = piece_y == dest.second && abs(piece_x - dest.first) == 2;
+                                
+                                if(isKing && diff2){
+                                    guiCastle(newPos);
+                                }
+                                
+                                play_board.movePiece(piece_y,piece_x,dest.second, dest.first);
+                                f[mp].setPosition(newPos);
+                                for(int i=0; i < 8; ++i){
+                                    if(play_board.getSquare(0,i)!= nullptr && play_board.getSymbolB(0,i)=='P'){
+                                        promote_white = true;
+                                        break;
+                                    }
+                                    if(play_board.getSquare(7,i)!= nullptr && play_board.getSymbolB(7,i)=='p'){
+                                        promote_black = true;
+                                        break;
+                                    }      
+                                }
+                                
+                                if(promote_white || promote_black){ //I should make this a function, but the goddamn textures are tripping me up
+                                    sf::RenderWindow promotion(sf::VideoMode({200,400}),"Choose a Piece");// promotion window
+                                    loadPromotions();
+                                    while(promotion.isOpen()){
+                                        Vector2i posP = Mouse::getPosition(promotion);
+                                        Event eP;
+                                        while(promotion.pollEvent(eP)){
+                                            if(eP.type == Event::MouseButtonPressed){
+                                                if(eP.key.code == Mouse::Left){
+                                                    for(int i{}; i < 4; ++i){
+                                                        if(buttons[i].getGlobalBounds().contains(posP.x,posP.y)){
+                                                            px = posP.x;
+                                                            py = posP.y;
+                                                            if(px >= 0 && px <= 200){
+                                                                if(py >= 0 && py <= 100){
+                                                                    play_board.pawnPromotion(dest.second, dest.first,"queen",currentPlayer->getColour());
+                                                                    if(currentPlayer->getColour()=='W'){
+                                                                        f[mp].setTexture(Q,true);
+                                                                    }else if(currentPlayer->getColour()=='B'){
+                                                                        f[mp].setTexture(q,true);
+                                                                    }
+                                                                }else if(py > 100 && py <= 200){
+                                                                    play_board.pawnPromotion(dest.second, dest.first,"bishop",currentPlayer->getColour());
+                                                                    if(currentPlayer->getColour()=='W'){
+                                                                        f[mp].setTexture(B,true);
+                                                                    }else if(currentPlayer->getColour()=='B'){
+                                                                        f[mp].setTexture(b,true);
+                                                                    }
+                                                                }else if(py > 200 && py <= 300){
+                                                                    play_board.pawnPromotion(dest.second, dest.first,"knight",currentPlayer->getColour());
+                                                                    if(currentPlayer->getColour()=='W'){
+                                                                        f[mp].setTexture(N,true);
+                                                                    }else if(currentPlayer->getColour()=='B'){
+                                                                        f[mp].setTexture(n,true);
+                                                                    }
+                                                                }else if(py > 300 && py <= 400){
+                                                                    play_board.pawnPromotion(dest.second, dest.first,"rook",currentPlayer->getColour());
+                                                                    if(currentPlayer->getColour()=='W'){
+                                                                        f[mp].setTexture(R,true);
+                                                                    }else if(currentPlayer->getColour()=='B'){
+                                                                        f[mp].setTexture(r,true);
+                                                                    }
+                                                                }
+                                                            }
+                                                            promote_black = false;
+                                                            promote_white = false;
+                                                            promotion.close();    
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            for(int i{}; i < 4; ++i) promotion.draw(buttons[i]);
+                                            promotion.display();                                 
                                         }
-                                        else if(currentPlayer->getColour()=='B'){
-                                            f[i].setPosition(Vector2f(1100 + add_x_b, 924));
-                                            add_x_b = add_x_b + 10;
-                                        }
+
                                     }
                                 }
-                                play_board.movePiece(piece_y,piece_x,int(p.y/size), int(p.x/size));
-                                f[mp].setPosition(newPos);
+                                
                                 piece_selected = false;
                                 switchTurn();
-                                enPassantRemoval(int(p.y/size), int(p.x/size));
+                                enPassantRemoval(dest.second, dest.first);
                             }else if(!isValid_M){// this block of code makes the piece snap back to position if invalid move
                                 f[mp].setPosition(Vector2f(piece_x*size +offset, piece_y*size+offset) );
-                                /*
-                                if(play_board.getSquare(7,0)!=nullptr && play_board.getisMovedB(7,0)== false){//hack solution so that the white rook in corner doesnt instant transmission into oblivion in beginning of game
-                                    f[0].setPosition(Vector2f(offset, 7*size+offset));
-                                }
-                                */
                             }
                         }else{
                             f[mp].setPosition(Vector2f(piece_x*size +offset, piece_y*size+offset) );
@@ -257,8 +384,10 @@ void Game::start(){
 
         //////draw////
         window.clear(sf::Color::White);
+        window.setFramerateLimit(144); 
         window.draw(board);//draws board
-        for(int i{0}; i < 32; ++i) window.draw(f[i]);//draws pieces
+        //for(int i{8}; i < 16; ++i) window.draw(f[i]);
+        for(int i{}; i < 32; ++i) window.draw(f[i]);//draws pieces
         
         window.display();
     }

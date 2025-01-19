@@ -29,15 +29,14 @@ Board::Board(){//x y (is default positions)
     initPiece(7, 1, new Knight(white));// 7 1
     initPiece(7, 6, new Knight(white));// 7 6
 
-  
     for(int j{}; j < dim; ++j){
-        initPiece(6 , j, new Pawn(white)); // 6, 0 <= j < 8 default
+        initPiece(6 , j, new Pawn(white)); // (6, 0 <= j < 8) default
     }
 
     // *** BLACK PIECES ***
 
     initPiece(0, 4, new King(black)); // 0 4
- 
+
     initPiece(0, 3, new Queen(black));// 0 3
 
     initPiece(0, 0, new Rook(black));// 0 0
@@ -48,9 +47,9 @@ Board::Board(){//x y (is default positions)
 
     initPiece(0, 1, new Knight(black));// 0 1
     initPiece(0, 6, new Knight(black));// 0 6
-    
+  
     for(int j{}; j < dim; ++j){
-        initPiece(1 , j, new Pawn(black));//1, 0 <= j < 8 is default
+        initPiece(1 , j, new Pawn(black));//(1, 0 <= j < 8) is default
     }
 
 }
