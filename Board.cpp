@@ -23,7 +23,7 @@ Board::Board(){//x y (is default positions)
     initPiece(7, 7, new Rook(white));// 7 7
     
 
-    initPiece(7, 2, new Bishop(white));// 7 2
+   initPiece(7, 2, new Bishop(white));// 7 2
     initPiece(7, 5, new Bishop(white));// 7 5
 
     initPiece(7, 1, new Knight(white));// 7 1
@@ -73,13 +73,13 @@ void Board::movePiece(int x_i, int y_i, int x_f, int y_f){
     if(getSquare(x_f,y_f)!=nullptr){ // code for when piece is getting taken
         setTaken(x_f,y_f);
     }
-
+    std::cout << "after set taken\n";
     if(getSymbolB(x_i, y_i) == 'P'|| getSymbolB(x_i, y_i) == 'p'){
         if((x_i - 1 == x_f && y_i - 1 == y_f) || (x_i - 1 == x_f && y_i + 1 == y_f) || (x_i + 1 == x_f && y_i - 1 == y_f ||x_i + 1 == x_f && y_i + 1 == y_f)){
             takeEnPassant(x_i, y_i, x_f, y_f);
         }
     }
-
+    std::cout << "after takeEnPassant\n";
 
     if(getSymbolB(x_i, y_i) == 'K'|| getSymbolB(x_i, y_i) == 'k'){   
         castleRook(x_i, y_i, x_f, y_f);
@@ -118,16 +118,28 @@ void Board::castleRook(int x_i, int y_i, int x_f, int y_f){
 }
 
 void Board::takeEnPassant(int x_i, int y_i, int x_f, int y_f){
-    if(getSquare(x_f+1,y_f)!=nullptr && getSquare(x_f+1,y_f)->getenPassant() == true){
-        if(getSymbolB(x_i, y_i) == 'P' && getSymbolB(x_f+1,y_f) == 'p'){
-            setTaken(x_f+1,y_f);
+    if(validRange(x_i,y_i, x_f+1, y_f)){
+        if(getSquare(x_f+1,y_f)!=nullptr && getSquare(x_f+1,y_f)->getenPassant() == true){
+            if(getSymbolB(x_i, y_i) == 'P' && getSymbolB(x_f+1,y_f) == 'p'){
+                setTaken(x_f+1,y_f);
+            }
         }
     }
-    if(getSquare(x_f-1,y_f)!= nullptr  && getSquare(x_f-1,y_f)->getenPassant() == true){
-        if(getSymbolB(x_i, y_i) == 'p' && getSymbolB(x_f-1,y_f) == 'P'){
-            setTaken(x_f-1,y_f);     
+    if(validRange(x_i,y_i, x_f-1, y_f)){
+        if(getSquare(x_f-1,y_f)!= nullptr  && getSquare(x_f-1,y_f)->getenPassant() == true){
+            if(getSymbolB(x_i, y_i) == 'p' && getSymbolB(x_f-1,y_f) == 'P'){
+                setTaken(x_f-1,y_f);     
+            }
         }
     }
+}
+
+bool Board::validRange(int x_i, int y_i, int x_f, int y_f){
+    bool valid{false};
+    if((x_i >= 0 && x_i < 8) && (x_f >= 0 && x_f < 8)){
+        valid = true;
+    }
+    return valid;
 }
 
 void Board::pawnPromotion(int x, int y, const std::string& pieceType,char colour){

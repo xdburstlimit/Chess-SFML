@@ -15,12 +15,15 @@ class Game{
     public:
         int size = 128;
         int offset = 32;
+        Texture t1,R,N,B,Q,K,P,r,n,b,q,k,p, b1, b2, b3, b4;
         Sprite f[32];
         Sprite buttons[4];
+        Sprite board;
         Game(std::string name1, std::string name2);
         ~Game();
         void switchTurn();
         void loadPromotions();
+        void promoteMenu(bool& black, bool& white, std::pair<int,int> dest, int mp);
         void enPassantRemoval(int x, int y);
         void enPassantCapture(Vector2f newPos, float& add_x_w, float& add_x_b);
         void guiCapture(Vector2f newPos, float& add_x_w, float& add_x_b);

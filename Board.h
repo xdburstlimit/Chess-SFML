@@ -22,6 +22,7 @@ class Board{
         bool blockCheckPossible(char colour, int& count_select,std::pair<int,int> pieces_block[128], std::pair<int,int> moves[128], int attack_x, int attack_y, int k_x, int k_y);
         void castleRook(int x_i, int y_i, int x_f, int y_f);
         void takeEnPassant(int x_i, int y_i, int x_f, int y_f);
+        bool validRange(int x_i, int y_i, int x_f, int y_f);
         
         bool pieceBlockingCheck(int selectedX, int selectedY, int x, int y, char colour);
         
