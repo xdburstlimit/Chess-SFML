@@ -34,18 +34,25 @@ Game::Game(std::string name1, std::string name2){
     b2.loadFromFile("assets/buttons/bishop.png");
     b3.loadFromFile("assets/buttons/knight.png");
     b4.loadFromFile("assets/buttons/rook.png");
+    b5W.loadFromFile("assets/buttons/playW.png");
+    b5B.loadFromFile("assets/buttons/playB.png");
+    bg.loadFromFile("assets/menu/bg.jpg");
+    sb.loadFromFile("assets/menu/sidebar.jpg");
 
     buttons[0].setTexture(b1);
     buttons[1].setTexture(b2);
     buttons[2].setTexture(b3);
     buttons[3].setTexture(b4);
-
+    PlayW.setTexture(b5W);
+    PlayB.setTexture(b5B);
+    Background.setTexture(bg);
+    Sidebar.setTexture(sb);
+    Sidebar.setPosition(1024,0);
+    PlayW.setPosition(500, 475);
+    PlayB.setPosition(500,475);
+    
     board.setTexture(t1);
-/*
-    f[0].setTexture(K);
-    f[1].setTexture(Q);
-    f[2].setTexture(k);
-*/
+
     //special white
 
     f[0].setTexture(R);
@@ -93,11 +100,6 @@ Game::~Game(){ // deletes remaining pieces on board that is dynamically allocate
 
 void Game::loadPosition(){
     //white pieces
-    /*
-    f[0].setPosition(size*4 +offset, size*7 +offset);
-    f[1].setPosition(size*5 +offset, size*1 +offset);
-    f[2].setPosition(offset,offset);
-    */
     
    
     for(int i{}; i < 8; ++i){
@@ -115,6 +117,7 @@ void Game::loadPosition(){
     for(int i{0}; i < 8; ++i){
         f[i+24].setPosition(size*i+offset,size*1+offset);
     }
+    
     
     
      
@@ -170,7 +173,7 @@ void Game::enPassantCapture(Vector2f newPos, float& add_x_w, float& add_x_b){
     }else if(currentPlayer->getColour()=='B'){
         for(int i{}; i < 32; ++i){
             if(f[i].getPosition().x == newPos.x && f[i].getPosition().y == newPos.y - size){
-                f[i].setPosition(Vector2f(1100 + add_x_w, 924-50));
+                f[i].setPosition(Vector2f(1100 + add_x_w, captured_b_y));
                 add_x_w = add_x_w + 10;        
             }
         }
@@ -182,12 +185,16 @@ void Game::guiCapture(Vector2f newPos, float& add_x_w, float& add_x_b){
     for(int i{}; i < 32; ++i){// code to check if there is a sprite at the newPos
         if(f[i].getPosition().x == newPos.x && f[i].getPosition().y == newPos.y){
             if(currentPlayer->getColour()=='W'){
-                f[i].setPosition(Vector2f(1100 + add_x_w, 100));
-                add_x_w = add_x_w + 10;
+                wc[w_capture] = f[i];
+                f[i].setPosition(Vector2f(captured_pos_x + add_x_w,caputered_w_y));
+                add_x_w = add_x_w + 20;
+                ++w_capture;
             }
             else if(currentPlayer->getColour()=='B'){
-                f[i].setPosition(Vector2f(1100 + add_x_b, 924-50));
-                add_x_b = add_x_b + 10;
+                bc[b_capture] = f[i];
+                f[i].setPosition(Vector2f(captured_pos_x + add_x_b, 924-50));
+                add_x_b = add_x_b + 20;
+                ++b_capture;
             }
         }
     }
@@ -201,6 +208,66 @@ void Game::guiCastle(Vector2f newPos){
         }else if(f[i].getPosition().x == newPos.x - 2*size && f[i].getPosition().y == newPos.y){
             f[i].setPosition(newPos.x+size, newPos.y);
         }
+    }
+}
+
+void Game::guiCheckmate(){
+    sf::RenderWindow checkmate(sf::VideoMode({400,200}),"Result", Style::Titlebar|sf::Style::Close);// promotion window
+    sf::Text cm;
+    sf::Font undertable;
+    
+    undertable.loadFromFile("./assets/font/sans.ttf");
+    cm.setFont(undertable);
+    
+    std::string colour = currentPlayer->getColour() == 'W'? "White ":"Black ";
+    std::string winner = colour + "wins";
+    cm.setString(winner);
+    cm.setCharacterSize(70);
+    cm.setFillColor(sf::Color::Black);
+    cm.setPosition(40,50);
+    while(checkmate.isOpen()){
+        Event eS;
+        while(checkmate.pollEvent(eS)){
+            if(eS.type == Event::Closed)
+                checkmate.close();
+            
+                                            
+        }
+        
+        checkmate.clear(sf::Color::White);
+        checkmate.draw(cm);
+        checkmate.display();
+
+    }
+
+}
+
+void Game::guiStalemate(){
+    sf::RenderWindow stalemate(sf::VideoMode({400,200}),"Result", Style::Titlebar|sf::Style::Close);// promotion window
+    sf::Text sm;
+    sf::Font undertable;
+    
+    undertable.loadFromFile("./assets/font/sans.ttf");
+    sm.setFont(undertable);
+    
+    
+    sm.setString("Stalemate");
+    sm.setCharacterSize(70);
+    sm.setFillColor(sf::Color::Black);
+    sm.setPosition(50,50);
+    while(stalemate.isOpen()){
+        Event eS;
+        while(stalemate.pollEvent(eS)){
+            if(eS.type == Event::Closed)
+                stalemate.close();
+            
+                                            
+        }
+        
+        stalemate.clear(sf::Color::White);
+        stalemate.draw(sm);
+        stalemate.display();
+
     }
 }
 
@@ -266,6 +333,43 @@ void Game::promoteMenu(bool& black, bool& white, std::pair<int,int> dest, int mp
     
 }
 
+void Game::menu(){
+    sf::RenderWindow menu(sf::VideoMode{window_x,window_y}, "Chess", Style::Titlebar|sf::Style::Close);
+    float px{};
+    float py{};
+    while(menu.isOpen()){
+        Vector2i pos = Mouse::getPosition(menu);
+        Event e;
+        while(menu.pollEvent(e)){
+            if(e.type == Event::Closed)
+                menu.close();
+            
+            if(e.type == Event::MouseButtonPressed){
+                if(e.key.code == Mouse::Left){
+                    if(PlayW.getGlobalBounds().contains(pos.x,pos.y)){
+                        menu.close();
+                        start();
+                    }
+                }
+            }
+            
+            
+                                     
+        }
+
+
+
+        //draw
+        menu.clear(sf::Color::White);
+        menu.setVerticalSyncEnabled(true);
+        menu.draw(Background);
+        menu.draw(PlayW);
+        menu.display();
+    }
+    
+
+}
+
 void Game::start(){
     //initialising window and pieces
     Vector2u window_res = {1024,1024};
@@ -318,7 +422,6 @@ void Game::start(){
         OPTIONAL:
         *add sounds for moving pieces
         *add sound when king is in check, highlight king if in check.
-        *add gui popups for stalemate, checkmate
         *make a menu
     
 
@@ -356,6 +459,7 @@ void Game::start(){
                     //if !king_check else 
                     if(!king_check){
                         if(pos.x < float(window_res.x) && pos.y < float(window_res.y)){
+                            
                             for(int i{}; i < 32; ++i){
                                 if(f[i].getGlobalBounds().contains(pos.x, pos.y))
                                 {
@@ -448,6 +552,7 @@ void Game::start(){
                     if(e.key.code == Mouse::Left){
                         //if !king_check else
                         if(!king_check){
+                            std::cout << "Inside Normal move\n";
                             isMove = false;
                             Vector2f p = f[mp].getPosition() + Vector2f(size/2,size/2);           //selected sprite's position
                             Vector2f newPos = Vector2f(size*int(p.x/size)+offset,size*int(p.y/size)+offset);        //new position of sprite
@@ -503,7 +608,7 @@ void Game::start(){
                                         stale_mate = play_board.isStalemate(currentPlayer->getColour(), k_x, k_y);
                                         std::cout << "stale_mate:" << stale_mate << '\n';
                                         if(stale_mate == true){
-                                            std::cout << "its a draw\n";
+                                            guiStalemate();
                                             window.close();
 
                                         }
@@ -517,17 +622,8 @@ void Game::start(){
                                     std::cout << king_checkmate << '\n';
                                     if(king_check || double_check){
                                         std::cout << "before king_checkmate?\n";
-                                        if((king_checkmate == true) && !block_check){
-                                            std::cout << "inside checkmate\n";
-                                            std::string winner{" "};
-                                            std::string x_wins = " wins.";
-                                            if(currentPlayer->getColour() == 'W'){
-                                                winner = "White";
-                                            }else if(currentPlayer->getColour() == 'B'){
-                                                winner = "Black";
-                                            }
-                                            std::string message = winner + x_wins;
-                                            std::cout << message << '\n';
+                                        if((king_checkmate == true) /*&& !block_check*/){
+                                            guiCheckmate();
                                             window.close();
 
                                         }
@@ -567,6 +663,7 @@ void Game::start(){
                                 KILLING THE ATTAKCING PIECE
                                 MOVING KING TO SAFETY.
                             */
+                            std::cout << "inside normal check\n";
                             isMove = false;
                             Vector2f p = f[mp].getPosition() + Vector2f(size/2,size/2);           //selected sprite's position
                             Vector2f newPos = Vector2f(size*int(p.x/size)+offset,size*int(p.y/size)+offset);        //new position of sprite
@@ -644,7 +741,7 @@ void Game::start(){
                                         stale_mate = play_board.isStalemate(currentPlayer->getColour(), k_x, k_y);
                                         std::cout << "stale_mate:" << stale_mate << '\n';
                                         if(stale_mate == true){
-                                            std::cout << "its a draw\n";
+                                            guiStalemate();
                                             window.close();
 
                                         }
@@ -661,17 +758,8 @@ void Game::start(){
                                     std::cout << "king_checkmate : " << king_checkmate << '\n';
                                     if(king_check || double_check){
                                         std::cout << king_checkmate && !block_check << '\n'; 
-                                        if(king_checkmate == true && !block_check){
-                                            std::cout << "inside king_checkmate block\n";
-                                            std::string winner{" "};
-                                            std::string x_wins = " wins.";
-                                            if(currentPlayer->getColour() == 'W'){
-                                                winner = "White";
-                                            }else if(currentPlayer->getColour() == 'B'){
-                                                winner = "Black";
-                                            }
-                                            std::string message = winner + x_wins;
-                                            std::cout << message << '\n';
+                                        if(king_checkmate == true /*&& !block_check*/){
+                                            guiCheckmate();
                                             window.close();
 
                                         }
@@ -703,6 +791,7 @@ void Game::start(){
                             }else{
                                 f[mp].setPosition(Vector2f(piece_x*size +offset, piece_y*size+offset) );
                             }
+                            
                             //maybe put check/stalemate/checkmate here(?)
        
                             //play_board.printBoard();
@@ -722,6 +811,7 @@ void Game::start(){
         window.clear(sf::Color::White);
         window.setVerticalSyncEnabled(true);
         window.draw(board);//draws board
+        window.draw(Sidebar);
         for(int i{0}; i < 32; ++i) window.draw(f[i]);//draws pieces
         
         window.display();

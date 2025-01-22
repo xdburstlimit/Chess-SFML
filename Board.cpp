@@ -17,7 +17,6 @@ Board::Board(){//x y (is default positions)
 
     initPiece(7, 4, new King(white)); // 7 4
     
-
     initPiece(7, 3, new Queen(white));// 7 3
 
     initPiece(7, 0, new Rook(white));// 7 0
@@ -33,7 +32,7 @@ Board::Board(){//x y (is default positions)
     for(int j{}; j < dim; ++j){
         initPiece(6 , j, new Pawn(white)); // (6, 0 <= j < 8) default
     }
-
+    
 
     // *** BLACK PIECES ***
     
@@ -54,6 +53,7 @@ Board::Board(){//x y (is default positions)
     for(int j{}; j < dim; ++j){
         initPiece(1 , j, new Pawn(black));//(1, 0 <= j < 8) is default
     }
+
 
 
 
@@ -768,7 +768,7 @@ bool Board::blockCheckPossible(char colour,int& count_select,std::pair<int,int> 
             }
         }
     }
-    
+
     std::cout << "end of function\n";
     return possible;
 }

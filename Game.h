@@ -15,8 +15,21 @@ class Game{
     public:
         int size = 128;
         int offset = 32;
-        Texture t1,R,N,B,Q,K,P,r,n,b,q,k,p, b1, b2, b3, b4;
+        int window_x = 1024+384;
+        int window_y = 1024;
+        int captured_pos_x = 1100;
+        int caputered_w_y = 100;
+        int captured_b_y = 875;
+        Texture t1,R,N,B,Q,K,P,r,n,b,q,k,p, b1, b2, b3, b4, b5W, b5B,bg,sb;
         Sprite f[32];
+        Sprite bc[16];
+        Sprite wc[16];
+        Sprite PlayW;
+        Sprite PlayB;
+        Sprite Background;
+        Sprite Sidebar;
+        int w_capture{};
+        int b_capture{};
         Sprite buttons[4];
         Sprite board;
         bool king_check = false;
@@ -37,6 +50,7 @@ class Game{
         int count_check{};
         void loadPosition();
         void start();
+        void menu();
 
 };
 
