@@ -115,10 +115,6 @@ bool King::isKingSafe(int x_i, int y_i,int x_f, int y_f, Board& board){
         }
 
     }
-
-
-
-
     return safe;
 }
 

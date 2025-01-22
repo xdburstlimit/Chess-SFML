@@ -17,7 +17,6 @@ bool Pawn::isValidMove(int x_i, int y_i, int x_f, int y_f, Board& board, char co
                         valid = true;
                     }else if((x_f == x_i + 2 && y_f == y_i) && (board.getSquare(x_i+1,y_i)==nullptr)){
                         valid = true;
-                        std::cout << "En passant active" << '\n';
                         board.getSquare(x_i,y_i)->setenPassant(true);
                     }
                 }   
@@ -74,7 +73,6 @@ bool Pawn::isValidMove(int x_i, int y_i, int x_f, int y_f, Board& board, char co
                     if((x_f == x_i - 1 && y_f == y_i)){
                         valid = true;
                     }else if(x_f == x_i - 2 && y_f == y_i && (board.getSquare(x_i-1,y_i)==nullptr)){
-                        std::cout << "En passant active" << '\n';
                         valid = true;
                         board.getSquare(x_i,y_i)->setenPassant(true);
                     }

@@ -16,6 +16,7 @@ Board::Board(){//x y (is default positions)
     // *** WHITE PIECES ***
 
     initPiece(7, 4, new King(white)); // 7 4
+    
 
     initPiece(7, 3, new Queen(white));// 7 3
 
@@ -33,7 +34,9 @@ Board::Board(){//x y (is default positions)
         initPiece(6 , j, new Pawn(white)); // (6, 0 <= j < 8) default
     }
 
+
     // *** BLACK PIECES ***
+    
 
     initPiece(0, 4, new King(black)); // 0 4
 
@@ -51,6 +54,8 @@ Board::Board(){//x y (is default positions)
     for(int j{}; j < dim; ++j){
         initPiece(1 , j, new Pawn(black));//(1, 0 <= j < 8) is default
     }
+
+
 
 }
 
@@ -73,13 +78,11 @@ void Board::movePiece(int x_i, int y_i, int x_f, int y_f){
     if(getSquare(x_f,y_f)!=nullptr){ // code for when piece is getting taken
         setTaken(x_f,y_f);
     }
-    std::cout << "after set taken\n";
     if(getSymbolB(x_i, y_i) == 'P'|| getSymbolB(x_i, y_i) == 'p'){
         if((x_i - 1 == x_f && y_i - 1 == y_f) || (x_i - 1 == x_f && y_i + 1 == y_f) || (x_i + 1 == x_f && y_i - 1 == y_f ||x_i + 1 == x_f && y_i + 1 == y_f)){
             takeEnPassant(x_i, y_i, x_f, y_f);
         }
     }
-    std::cout << "after takeEnPassant\n";
 
     if(getSymbolB(x_i, y_i) == 'K'|| getSymbolB(x_i, y_i) == 'k'){   
         castleRook(x_i, y_i, x_f, y_f);
@@ -163,7 +166,7 @@ bool Board::isCheck(char colour,int& attack_x, int& attack_y, int& k_x, int& k_y
     
     if(colour == 'B'){// if colour b made a move check if White is in check after that move
         bool found{false};
-        for(int i{}; i < 8; ++i){ // code to find king on board
+        for(int i{}; i < 8; ++i){ // code to find white king on board
             for(int j{}; j < 8; ++j){
                 if(getSquare(i, j) != nullptr){
                     if(getSquare(i, j) -> getSymbol() == 'K'){
@@ -175,18 +178,19 @@ bool Board::isCheck(char colour,int& attack_x, int& attack_y, int& k_x, int& k_y
                 }
             }
             if(found == true){
-                std::cout << "found W king\n";
                 break;
             }
         }
         char attack_colour{' '};
+        char king_colour = getColourB(k_x,k_y);
         int count{};
         for(int i{}; i < 8; ++i){
             for(int j{}; j < 8; ++j){
-                if(getSquare(i, j) != nullptr){
-                    if(getColourB(k_x, k_y) != getColourB(i, j)){ 
+                if(getSquare(i, j) != nullptr){    
+                    if(king_colour != getColourB(i, j)){ 
                         attack_colour = getColourB(i, j);
-                        if(getSquare(i, j)->isValidMove(i, j, k_x, k_y, *this, attack_colour)){
+                        if(isValidMoveB(i, j, k_x, k_y, attack_colour)){
+                            std::cout << "(i, j) @ (" << i << ", " << j << ")\n";
                             attack_x = i;
                             attack_y = j;
                             king_check = true;
@@ -196,14 +200,16 @@ bool Board::isCheck(char colour,int& attack_x, int& attack_y, int& k_x, int& k_y
                 }
             } 
         }
-
         if(king_check == true){// to break out of outer loop
             std::cout << "White King is in check" << '\n';
         }
         if(count >= 2){
             double_check = true;
             std::cout << "King is double checked." << '\n';
+        }else{
+            double_check = false;
         }
+        
 
     }else if(colour == 'W'){// if white made a move check if Black king is in check
         bool found{false};
@@ -219,7 +225,6 @@ bool Board::isCheck(char colour,int& attack_x, int& attack_y, int& k_x, int& k_y
                 }
             }
             if(found == true){
-                std::cout << "found B king\n";
                 break;
             }
         }
@@ -230,7 +235,7 @@ bool Board::isCheck(char colour,int& attack_x, int& attack_y, int& k_x, int& k_y
                 if(getSquare(i, j) != nullptr){
                     if(getColourB(k_x, k_y) != getColourB(i, j)){ 
                         attack_colour = getColourB(i, j);
-                        if(getSquare(i, j)->isValidMove(i, j, k_x, k_y, *this, attack_colour)){
+                        if(isValidMoveB(i, j, k_x, k_y, attack_colour)){
                             attack_x = i;
                             attack_y = j;
                             king_check = true;
@@ -246,6 +251,8 @@ bool Board::isCheck(char colour,int& attack_x, int& attack_y, int& k_x, int& k_y
         if(count >= 2){
             double_check = true;
             std::cout << "King is double checked." << '\n';
+        }else{
+            double_check = false;
         }
 
     }
@@ -338,10 +345,22 @@ bool Board::isCheckmate(char colour){//attacking colour
         b8 = isKingSafeB(k_x, k_y, k_x , k_y + 1);
     }
 
+    std::cout << b1 << '\n';
+    std::cout << b2 << '\n';
+    std::cout << b3 << '\n';
+    std::cout << b4 << '\n';
+
+    std::cout << b5 << '\n';
+    std::cout << b6 << '\n';
+    std::cout << b7 << '\n';
+    std::cout << b8 << '\n';
+
     // i think this is probably the worst thing i have ever coded, lord please forgive me
     if(b1 == false && b2 == false && b3 == false && b4 == false && b5 == false && b6 == false && b7 == false && b8 == false){
         king_checkmate = true;
     }
+    std::cout << "inside checkmate function\n";
+    std::cout << king_checkmate << '\n';
     return king_checkmate;
 }
 
@@ -497,12 +516,14 @@ bool Board::blockCheckPossible(char colour,int& count_select,std::pair<int,int> 
     }else if(colour == 'W'){
         enemy_colour = 'B';
     }
+
     for(int k{}; k < 128; ++k){// need to write this better and not using 3 128 arrays(128 because 16 pieces can move in 8 possible direction, probably a brutal overestimation but yeah)
         if(k != 0){
             if(pieces_avail[k].first == 0 && pieces_avail[k].second == 0){
                 break;
             }
         }
+        
         
         if(attack_x == k_x){// i guess the cool thing is that k index correspondence between the pieces_block and moves array with this code
             if(k_y < attack_y){
@@ -534,7 +555,7 @@ bool Board::blockCheckPossible(char colour,int& count_select,std::pair<int,int> 
                 
             }
         }
-
+        
         if(attack_y == k_y){
             if(attack_x < k_x){
                 for(int i{k_x-1}; i >= attack_x; --i){
@@ -639,6 +660,7 @@ bool Board::blockCheckPossible(char colour,int& count_select,std::pair<int,int> 
         }
     }
 
+
     //seperate king logic to get rid of check
     
     ++count_move;
@@ -737,7 +759,6 @@ bool Board::blockCheckPossible(char colour,int& count_select,std::pair<int,int> 
     if(k_y + 1 < 8){
         if(getSquare(k_x, k_y + 1) == nullptr || ( getSquare(k_x, k_y + 1) != nullptr && getColourB(k_x,k_y + 1) != colour )){
             if(isKingSafeB(k_x, k_y, k_x , k_y + 1)){
-                std::cout << "why the fuck is this legal\n";
                 pieces_block[count_select] = std::make_pair(k_x,k_y);// adding king
                 ++count_select;
                 moves[count_move]= std::make_pair(k_x, k_y + 1);
@@ -748,7 +769,7 @@ bool Board::blockCheckPossible(char colour,int& count_select,std::pair<int,int> 
         }
     }
     
-    
+    std::cout << "end of function\n";
     return possible;
 }
 

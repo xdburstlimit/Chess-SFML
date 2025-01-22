@@ -19,6 +19,7 @@ class Game{
         Sprite f[32];
         Sprite buttons[4];
         Sprite board;
+        bool king_check = false;
         Game(std::string name1, std::string name2);
         ~Game();
         void switchTurn();
@@ -28,6 +29,12 @@ class Game{
         void enPassantCapture(Vector2f newPos, float& add_x_w, float& add_x_b);
         void guiCapture(Vector2f newPos, float& add_x_w, float& add_x_b);
         void guiCastle(Vector2f newPos);
+        void guiStalemate();
+        void guiCheckmate();
+        int count_select{};
+        bool double_check{false};
+        bool king_checkmate{false};
+        int count_check{};
         void loadPosition();
         void start();
 
