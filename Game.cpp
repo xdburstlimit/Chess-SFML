@@ -454,8 +454,8 @@ void Game::start(){
 
     /*
         TODO:
-        clean up code, remove debugging prints see where you can make the code simpler.
-    
+        *Try to use one window, instead of calling another one for the game.
+        *clean up code, remove debugging prints see where you can make the code simpler.
         
         
         Finished:
@@ -474,8 +474,8 @@ void Game::start(){
         *implement stalemate           //done
         *implement Checkmate Logic()    //done
         *make a menu                    //done
-        *add sounds for moving pieces
-        *add sound when king is in check, highlight king if in check.
+        *add sounds for moving pieces   //done
+        *add sound when king is in check, highlight king if in check.//done
 
         BUGS:
         *Really rare case where a piece will snap back to incorrect position.
