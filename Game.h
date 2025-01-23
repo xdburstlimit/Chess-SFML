@@ -2,6 +2,7 @@
 #define _GAME_
 #include "Player.h"
 #include "Board.h"
+#include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 #include <cmath>
 #include <time.h>
@@ -21,6 +22,8 @@ class Game{
         int caputered_w_y = 100;
         int captured_b_y = 875;
         Texture t1,R,N,B,Q,K,P,r,n,b,q,k,p, b1, b2, b3, b4, b5W, b5B,bg,sb;
+        Texture PlayT;
+        Sprite Play;
         Sprite f[32];
         Sprite bc[16];
         Sprite wc[16];
@@ -28,6 +31,10 @@ class Game{
         Sprite PlayB;
         Sprite Background;
         Sprite Sidebar;
+        SoundBuffer move_sound;
+        SoundBuffer capture_sound;
+        SoundBuffer check_sound;
+        
         int w_capture{};
         int b_capture{};
         Sprite buttons[4];
