@@ -109,7 +109,6 @@ bool Pawn::isValidMove(int x_i, int y_i, int x_f, int y_f, Board& board, char co
                     if(board.getColourB(x_i,y_i) != board.getColourB(x_f + 1, y_f)){
                         if(board.getSquare(x_f + 1, y_f) -> getenPassant()==true){
                             if(board.getSquare(x_f + 1,y_f)->getSymbol() == 'p'){
-                                std::cout << "inside first block\n";
                                 valid = true;
                                 board.getSquare(x_i,y_i)->setenPassant(false);
                             }

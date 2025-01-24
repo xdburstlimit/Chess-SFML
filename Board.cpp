@@ -72,6 +72,7 @@ void Board::printBoard(){
         }
         std::cout << '\n';
     }
+    std::cout << '\n';
 }
 
 void Board::movePiece(int x_i, int y_i, int x_f, int y_f){
@@ -190,7 +191,6 @@ bool Board::isCheck(char colour,int& attack_x, int& attack_y, int& k_x, int& k_y
                     if(king_colour != getColourB(i, j)){ 
                         attack_colour = getColourB(i, j);
                         if(isValidMoveB(i, j, k_x, k_y, attack_colour)){
-                            std::cout << "(i, j) @ (" << i << ", " << j << ")\n";
                             attack_x = i;
                             attack_y = j;
                             king_check = true;
@@ -345,22 +345,10 @@ bool Board::isCheckmate(char colour){//attacking colour
         b8 = isKingSafeB(k_x, k_y, k_x , k_y + 1);
     }
 
-    std::cout << b1 << '\n';
-    std::cout << b2 << '\n';
-    std::cout << b3 << '\n';
-    std::cout << b4 << '\n';
-
-    std::cout << b5 << '\n';
-    std::cout << b6 << '\n';
-    std::cout << b7 << '\n';
-    std::cout << b8 << '\n';
-
     // i think this is probably the worst thing i have ever coded, lord please forgive me
     if(b1 == false && b2 == false && b3 == false && b4 == false && b5 == false && b6 == false && b7 == false && b8 == false){
         king_checkmate = true;
     }
-    std::cout << "inside checkmate function\n";
-    std::cout << king_checkmate << '\n';
     return king_checkmate;
 }
 
@@ -489,7 +477,6 @@ bool Board::isStalemate(char colour, int k_x, int k_y){
         }
          if(b1 == false && b2 == false && b3 == false && b4 == false && b5 == false && b6 == false && b7 == false && b8 == false){
             stale_mate = true;
-            std::cout << "Stalemate: draw " << '\n';
         }
 
     
@@ -532,8 +519,6 @@ bool Board::blockCheckPossible(char colour,int& count_select,std::pair<int,int> 
                         possible = true;
                         pieces_block[count_select] = pieces_avail[k];
                         moves[count_move]= std::make_pair(k_x,j);
-                        std::cout << "Move piece: (" << pieces_avail[k].first << ", " << pieces_avail[k].second << ')' <<
-                            " to (" << moves[count_move].first << ", " << moves[count_move].second << ") to block check. " << '\n';
                         ++count_move; 
                         ++count_select;
                     }   
@@ -546,8 +531,6 @@ bool Board::blockCheckPossible(char colour,int& count_select,std::pair<int,int> 
                         possible = true;
                         pieces_block[count_select] = pieces_avail[k];
                         moves[count_move]= std::make_pair(k_x,j);
-                        std::cout << "Move piece: (" << pieces_avail[k].first << ", " << pieces_avail[k].second << ')' <<
-                            " to (" << moves[count_move].first << ", " << moves[count_move].second << ") to lift check. " << '\n';
                         ++count_move; 
                         ++count_select;
                     }  
@@ -563,8 +546,6 @@ bool Board::blockCheckPossible(char colour,int& count_select,std::pair<int,int> 
                         possible = true;
                         pieces_block[count_select] = pieces_avail[k];
                         moves[count_move]= std::make_pair(i, k_y);
-                        std::cout << "Move piece: (" << pieces_avail[k].first << ", " << pieces_avail[k].second << ')' <<
-                            " to (" << moves[count_move].first << ", " << moves[count_move].second << ") to lift check. " << '\n';
                         ++count_move; 
                         ++count_select;
                     }
@@ -577,8 +558,6 @@ bool Board::blockCheckPossible(char colour,int& count_select,std::pair<int,int> 
                         possible = true;
                         pieces_block[count_select] = pieces_avail[k];
                         moves[count_move]= std::make_pair(i, k_y);
-                        std::cout << "Move piece: (" << pieces_avail[k].first << ", " << pieces_avail[k].second << ')' <<
-                            " to (" << moves[count_move].first << ", " << moves[count_move].second << ") to lift check. " << '\n';
                         ++count_move; 
                         ++count_select;
                     }
@@ -598,8 +577,6 @@ bool Board::blockCheckPossible(char colour,int& count_select,std::pair<int,int> 
                         possible = true;
                         pieces_block[count_select] = pieces_avail[k];
                         moves[count_move]= std::make_pair(i, j);
-                        std::cout << "Move piece: (" << pieces_avail[k].first << ", " << pieces_avail[k].second << ')' <<
-                            " to (" << moves[count_move].first << ", " << moves[count_move].second << ") to lift check. " << '\n';
                         ++count_move; 
                         ++count_select;
                     }
@@ -613,8 +590,7 @@ bool Board::blockCheckPossible(char colour,int& count_select,std::pair<int,int> 
                         possible = true;
                         pieces_block[count_select] = pieces_avail[k];
                         moves[count_move]= std::make_pair(i, j);
-                        std::cout << "Move piece: (" << pieces_avail[k].first << ", " << pieces_avail[k].second << ')' <<
-                            " to (" << moves[count_move].first << ", " << moves[count_move].second << ") to lift check. " << '\n';
+
                         ++count_move; 
                         ++count_select;
                     }
@@ -633,8 +609,7 @@ bool Board::blockCheckPossible(char colour,int& count_select,std::pair<int,int> 
                         possible = true;
                         pieces_block[count_select] = pieces_avail[k];
                         moves[count_move]= std::make_pair(i, j);
-                        std::cout << "Move piece: (" << pieces_avail[k].first << ", " << pieces_avail[k].second << ')' <<
-                            " to (" << moves[count_move].first << ", " << moves[count_move].second << ") to lift check. " << '\n';
+
                         ++count_move; 
                         ++count_select;
                     }
@@ -648,8 +623,6 @@ bool Board::blockCheckPossible(char colour,int& count_select,std::pair<int,int> 
                         possible = true;
                         pieces_block[count_select] = pieces_avail[k];
                         moves[count_move]= std::make_pair(i, j);
-                        std::cout << "Move piece: (" << pieces_avail[k].first << ", " << pieces_avail[k].second << ')' <<
-                            " to (" << moves[count_move].first << ", " << moves[count_move].second << ") to lift check. " << '\n';
                         ++count_move; 
                         ++count_select;
                     }
@@ -673,8 +646,6 @@ bool Board::blockCheckPossible(char colour,int& count_select,std::pair<int,int> 
                     ++count_select;
                     moves[count_move]= std::make_pair(k_x - 1, k_y - 1);
                     ++count_move;
-                    std::cout << "Move piece: (" << pieces_avail[count_select].first << ", " << pieces_avail[count_select].second << ')' <<
-                        " to (" << moves[count_move].first << ", " << moves[count_move].second << ") to lift check. " << '\n';
                 }
             }
             
@@ -686,8 +657,6 @@ bool Board::blockCheckPossible(char colour,int& count_select,std::pair<int,int> 
                     ++count_select;
                     moves[count_move]= std::make_pair(k_x - 1, k_y + 1);
                     ++count_move;
-                    std::cout << "Move piece: (" << pieces_avail[count_select].first << ", " << pieces_avail[count_select].second << ')' <<
-                        " to (" << moves[count_move].first << ", " << moves[count_move].second << ") to lift check. " << '\n';
                 }     
             }  
         }
@@ -697,8 +666,6 @@ bool Board::blockCheckPossible(char colour,int& count_select,std::pair<int,int> 
                 ++count_select;
                 moves[count_move]= std::make_pair(k_x - 1, k_y);
                 ++count_move;
-                std::cout << "Move piece: (" << pieces_avail[count_select].first << ", " << pieces_avail[count_select].second << ')' <<
-                    " to (" << moves[count_move].first << ", " << moves[count_move].second << ") to lift check. " << '\n';
             }
         }     
     }
@@ -712,8 +679,6 @@ bool Board::blockCheckPossible(char colour,int& count_select,std::pair<int,int> 
                     ++count_select;
                     moves[count_move]= std::make_pair(k_x + 1, k_y - 1);
                     ++count_move;
-                    std::cout << "Move piece: (" << pieces_avail[count_select].first << ", " << pieces_avail[count_select].second << ')' <<
-                        " to (" << moves[count_move].first << ", " << moves[count_move].second << ") to lift check. " << '\n';
                 }
             }
         }
@@ -724,8 +689,6 @@ bool Board::blockCheckPossible(char colour,int& count_select,std::pair<int,int> 
                     ++count_select;
                     moves[count_move]= std::make_pair(k_x + 1, k_y + 1);
                     ++count_move;
-                    std::cout << "Move piece: (" << pieces_avail[count_select].first << ", " << pieces_avail[count_select].second << ')' <<
-                        " to (" << moves[count_move].first << ", " << moves[count_move].second << ") to lift check. " << '\n';
                 }
             }    
         }
@@ -736,8 +699,6 @@ bool Board::blockCheckPossible(char colour,int& count_select,std::pair<int,int> 
                 
                 moves[count_move]= std::make_pair(k_x + 1, k_y);
                 ++count_move;
-                std::cout << "Move piece: (" << pieces_avail[count_select].first << ", " << pieces_avail[count_select].second << ')' <<
-                    " to (" << moves[count_move].first << ", " << moves[count_move].second << ") to lift check. " << '\n';
             }
         }
         
@@ -751,8 +712,6 @@ bool Board::blockCheckPossible(char colour,int& count_select,std::pair<int,int> 
                 ++count_select;
                 moves[count_move]= std::make_pair(k_x, k_y - 1);
                 ++count_move;
-                std::cout << "Move piece: (" << pieces_avail[count_select].first << ", " << pieces_avail[count_select].second << ')' <<
-                    " to (" << moves[count_move].first << ", " << moves[count_move].second << ") to lift check. " << '\n';
             }
         }
     }
@@ -763,13 +722,10 @@ bool Board::blockCheckPossible(char colour,int& count_select,std::pair<int,int> 
                 ++count_select;
                 moves[count_move]= std::make_pair(k_x, k_y + 1);
                 ++count_move;
-                std::cout << "Move piece: (" << pieces_avail[count_select].first << ", " << pieces_avail[count_select].second << ')' <<
-                    " to (" << moves[count_move].first << ", " << moves[count_move].second << ") to lift check. " << '\n';
             }
         }
     }
 
-    std::cout << "end of function\n";
     return possible;
 }
 

@@ -86,12 +86,8 @@ bool Bishop::isValidMove(int x_i, int y_i, int x_f, int y_f, Board& board,char c
                 }else if(board.getSquare(i,j) == nullptr){
                     valid = true;
                 }
-
             } 
-
         }
-
-
     }
     return valid;
 }

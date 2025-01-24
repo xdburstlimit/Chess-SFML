@@ -34,8 +34,6 @@ Game::Game(std::string name1, std::string name2){
     b2.loadFromFile("assets/buttons/bishop.png");
     b3.loadFromFile("assets/buttons/knight.png");
     b4.loadFromFile("assets/buttons/rook.png");
-    b5W.loadFromFile("assets/buttons/playW.png");
-    b5B.loadFromFile("assets/buttons/playB.png");
     bg.loadFromFile("assets/menu/bg.jpg");
     sb.loadFromFile("assets/menu/sidebar.jpg");
     PlayT.loadFromFile("assets/buttons/buttons.png");
@@ -47,24 +45,19 @@ Game::Game(std::string name1, std::string name2){
     Play.setTexture(PlayT);
     Play.setTextureRect(IntRect(0,0,325,130));
     Play.setPosition(500,475);
+
     
-    /*
-    PlayUp.setTexture(PlayT);
-    PlayUp.setTextureRect(IntRect(330,0,318,130));
-    PlayUp.setPosition(500,475);
-    */
+    king_red.setSize(Vector2f(size,size));
+    king_red.setFillColor(sf::Color::Red);
+    king_red.setPosition(-128,-128);
 
-
-    PlayW.setTexture(b5W);
-    PlayB.setTexture(b5B);
     Background.setTexture(bg);
     Sidebar.setTexture(sb);
-    Sidebar.setPosition(window_y,0);
-    PlayW.setPosition(500, 475);
-    PlayB.setPosition(500,475);
+    Sidebar.setPosition(window_res.y,0);
+
     
     board.setTexture(t1);
-/*
+/*  stalemate
     f[0].setTexture(K);
     f[1].setTexture(k);
     f[2].setTexture(Q);
@@ -104,7 +97,6 @@ Game::Game(std::string name1, std::string name2){
 }
 
 Game::~Game(){ // deletes remaining pieces on board that is dynamically allocated 
-    std::cout << "Game destructor called " << '\n';
     for(int i{}; i < 8; ++i){
         for(int j{}; j < 8; ++j){
             if(play_board.getSquare(i,j) != nullptr){
@@ -115,13 +107,13 @@ Game::~Game(){ // deletes remaining pieces on board that is dynamically allocate
 }
 
 void Game::loadPosition(){
-    //white pieces
-/*
+   
+/*  stalemate
     f[0].setPosition(size*4+offset,size*7+offset);
     f[1].setPosition(offset,offset);
     f[2].setPosition(size*5+offset,size*1+offset);
 */
-   
+    //white pieces
     for(int i{}; i < 8; ++i){
         f[i].setPosition(size*i + offset,size*7 + offset);
     }
@@ -182,7 +174,6 @@ void Game::enPassantCapture(Vector2f newPos, float& add_x_w, float& add_x_b){
             temp_x = f[i].getPosition().x;
             temp_y = f[i].getPosition().y;
             if(temp_x == newPos.x && temp_y == newPos.y + size){
-                std::cout << int(temp_y/size) << ", " << int(temp_x/size) << '\n';
                 f[i].setPosition(Vector2f(1100 + add_x_w, 100));
                 add_x_w = add_x_w + 10;        
             }
@@ -209,7 +200,7 @@ void Game::guiCapture(Vector2f newPos, float& add_x_w, float& add_x_b){
             }
             else if(currentPlayer->getColour()=='B'){
                 bc[b_capture] = f[i];
-                f[i].setPosition(Vector2f(captured_pos_x + add_x_b, 924-50));
+                f[i].setPosition(Vector2f(captured_pos_x + add_x_b, captured_b_y));
                 add_x_b = add_x_b + 20;
                 ++b_capture;
             }
@@ -246,9 +237,7 @@ void Game::guiCheckmate(){
         Event eS;
         while(checkmate.pollEvent(eS)){
             if(eS.type == Event::Closed)
-                checkmate.close();
-            
-                                            
+                checkmate.close();                        
         }
         
         checkmate.clear(sf::Color::White);
@@ -276,9 +265,7 @@ void Game::guiStalemate(){
         Event eS;
         while(stalemate.pollEvent(eS)){
             if(eS.type == Event::Closed)
-                stalemate.close();
-            
-                                            
+                stalemate.close();                                   
         }
         
         stalemate.clear(sf::Color::White);
@@ -289,7 +276,6 @@ void Game::guiStalemate(){
 }
 
 void Game::promoteMenu(bool& black, bool& white, std::pair<int,int> dest, int mp){
-    std::cout << "inside promote menu\n";
     float px{};
     float py{};
     sf::RenderWindow promotion(sf::VideoMode({200,400}),"Choose a Piece");// promotion window
@@ -351,7 +337,7 @@ void Game::promoteMenu(bool& black, bool& white, std::pair<int,int> dest, int mp
 }
 
 void Game::menu(){
-    sf::RenderWindow menu(sf::VideoMode({window_x,window_y}), "Chess", Style::Titlebar|sf::Style::Close);
+    sf::RenderWindow menu(sf::VideoMode({window_res.x + side_bar, window_res.y}), "Chess", Style::Titlebar|sf::Style::Close);
     float px{};
     float py{};
     while(menu.isOpen()){
@@ -372,21 +358,13 @@ void Game::menu(){
                         start();
                     }
                 }
-            }
-            
-            
-                                     
+            }                         
         }
-
-
-
         //draw
         menu.clear(sf::Color::White);
         menu.setVerticalSyncEnabled(true);
         menu.draw(Background);
-        
         menu.draw(Play);
-        
         menu.display();
     }
     
@@ -395,46 +373,10 @@ void Game::menu(){
 
 void Game::start(){
     //initialising window and pieces
-    Vector2u window_res = {1024,1024};
-    unsigned int side_bar = 384;
     sf::RenderWindow window(sf::VideoMode({window_res.x + side_bar, window_res.y}), "Chess",Style::Titlebar|sf::Style::Close);
-    sf::RectangleShape shape;
-    shape.setSize(Vector2f(size,size));
-    shape.setFillColor(sf::Color::Red);
-    shape.setPosition(-128,-128);
-    //buttons for promotion window
-
     loadPosition();
-    bool block_check{false};
-    std::pair<int,int> chosen_pieces[128]; 
-    std::pair<int,int> moves[128];
-    std::pair<int,int> selected_pair;
-    int attack_x{};
-    int attack_y{};
 
-    bool correct_colour = false;
-    bool valid_piece = false;
-    bool list_piece = false;
-    int k_x{};
-    int k_y{};
-    bool isMove = false;
-    bool list_move = false;
-    bool isValid_M = false;
-    bool not_nullptr = false;
-    bool isValid_P = false;
-    bool piece_selected = false;
-    bool promote_white = false;
-    bool promote_black = false;
-    int piece_x = 0, piece_y = 0;
-    float dx = 0, dy = 0;
-    int mp{};
-    float add_x_w = 0; // for when pieces get captured
-    float add_x_b = 0;
-    bool stale_mate = false;
-    bool king_safety{false};
-    bool enemy{false};
-    //play_board.printBoard();
-
+    //sound effects
     move_sound.loadFromFile("./assets/sound/move-self.mp3");
     Sound move_piece(move_sound);
 
@@ -446,10 +388,8 @@ void Game::start(){
 
     /*
         IMPORTANT:
-            x_engine = y_sfml and
+            x_engine = y_sfml    (board[i][j] = sfml[y][x])
             y_engine = x_sfml
-
-            in the gui code we will be following the sfml style ig
     */
 
     /*
@@ -512,15 +452,13 @@ void Game::start(){
                     }else{//logic for when king is in check
                         if(double_check){
                             not_nullptr = play_board.getSquare(k_x,k_y) != nullptr;
-                            std::cout << k_x << ", " << k_y << '\n';
+
 
                             if(not_nullptr){
                                 correct_colour = play_board.getColourB(k_x,k_y) != currentPlayer->getColour();
                             }
                             valid_piece = not_nullptr;
                             
-                            std::cout << "k_y*size+offset,k_x*size +offset" << k_y*size+offset <<", " << k_x*size +offset << '\n';
-                            //&& f[i].getPosition()== Vector2f(k_y*size+offset,k_x*size +offset)
                             if(valid_piece&& correct_colour){
                                 for(int i{}; i < 32; ++i){
                                     if(f[i].getPosition()== Vector2f(k_y*size+offset,k_x*size +offset) && f[i].getGlobalBounds().contains(pos.x, pos.y)){
@@ -541,23 +479,18 @@ void Game::start(){
                             int temp_x = int(pos.x/size);
                             int temp_y = int(pos.y/size);
                             not_nullptr = play_board.getSquare(temp_y,temp_x) != nullptr;
-                            std::cout << "not nullptr : " << not_nullptr << '\n';
                             if(not_nullptr){
                                 correct_colour = play_board.getColourB(temp_y,temp_x) == currentPlayer->getColour();
-                                std::cout << "correct colour: " << correct_colour << '\n';
                             }
                         
                             selected_pair = std::make_pair(temp_y, temp_x);
-                            std::cout << count_check << '\n';
+
                             for(int i{}; i < count_select;++i){
-                                //std::cout << chosen_pieces[i].second << ", " << chosen_pieces[i].first << '\n';
-                                //std::cout << "searching for pair...\n";
                                 if(selected_pair == chosen_pieces[i]){
                                     list_piece = true;
                                     break;
                                 }
                             }
-                            //f[i].getPosition()== Vector2f(selected_pair.second*size+offset,selected_pair.first*size +offset) && 
                             valid_piece = not_nullptr && correct_colour && list_piece;
                             if(valid_piece){
                                 for(int i{}; i < 32; ++i){
@@ -574,18 +507,13 @@ void Game::start(){
                                 
                                 piece_selected = true;
                             }
-                            
                         }
-                        
-
                     }
                 }
             if(piece_selected == true){
                 if(e.type == Event::MouseButtonReleased){
                     if(e.key.code == Mouse::Left){
-                        //if !king_check else
                         if(!king_check){
-                            std::cout << "Inside Normal move\n";
                             isMove = false;
                             Vector2f p = f[mp].getPosition() + Vector2f(size/2,size/2);           //selected sprite's position
                             Vector2f newPos = Vector2f(size*int(p.x/size)+offset,size*int(p.y/size)+offset);        //new position of sprite
@@ -623,7 +551,6 @@ void Game::start(){
                                         if(play_board.getSymbolB(piece_y,piece_x)== 'P' && currentPlayer->getColour()=='W' && black_pawn_ep){
                                             enPassantCapture(newPos,add_x_w,add_x_b);
                                         }else if( play_board.getSymbolB(piece_y,piece_x) == 'p' && currentPlayer->getColour()=='B' && white_pawn_ep){
-                                            std::cout << "inside else if\n";
                                             enPassantCapture(newPos,add_x_w,add_x_b);
                                         }
                                     }
@@ -638,37 +565,7 @@ void Game::start(){
                                     play_board.movePiece(piece_y,piece_x,dest.second, dest.first);
                                     play_board.printBoard();
                                     f[mp].setPosition(newPos);
-                                    king_check = play_board.isCheck(currentPlayer->getColour(), attack_x, attack_y, k_x, k_y, double_check);
-                                    std::cout << "king_check : " << king_check << '\n';
-                                    
-                                    if(!king_check){
-                                        shape.setPosition(-size, -size);
-                                        stale_mate = play_board.isStalemate(currentPlayer->getColour(), k_x, k_y);
-                                        std::cout << "stale_mate:" << stale_mate << '\n';
-                                        if(stale_mate == true){
-                                            guiStalemate();
-                                            window.close();
 
-                                        }
-                                    }else{
-                                        std::string k_colour = (currentPlayer->getColour() != 'W')? "White " : "Black ";
-                                        shape.setPosition(k_y*size, k_x*size);
-                                        checked.play();
-                                        block_check = play_board.blockCheckPossible(currentPlayer->getColour(), count_select,chosen_pieces,moves,attack_x,attack_y,k_x,k_y);
-                                        std::cout << k_colour+"is in check\n";
-                                    }
-
-                                    king_checkmate = play_board.isCheckmate(currentPlayer->getColour());
-                                    std::cout << king_checkmate << '\n';
-                                    if(king_check || double_check){
-                                        std::cout << "before king_checkmate?\n";
-                                        if((king_checkmate == true) /*&& !block_check*/){
-                                            guiCheckmate();
-                                            window.close();
-
-                                        }
-                                    }
-                                    
                                     for(int i=0; i < 8; ++i){
                                         if(play_board.getSquare(0,i)!= nullptr && play_board.getSymbolB(0,i)=='P'){
                                             promote_white = true;
@@ -683,6 +580,35 @@ void Game::start(){
                                     if(promote_white||promote_black){
                                         promoteMenu(promote_black,promote_white,dest,mp);
                                     }
+
+                                    king_check = play_board.isCheck(currentPlayer->getColour(), attack_x, attack_y, k_x, k_y, double_check);
+                                    
+                                    if(!king_check){
+                                        king_red.setPosition(-size, -size);
+                                        stale_mate = play_board.isStalemate(currentPlayer->getColour(), k_x, k_y);
+                                        if(stale_mate == true){
+                                            guiStalemate();
+                                            window.close();
+
+                                        }
+                                    }else{
+                                        std::string k_colour = (currentPlayer->getColour() != 'W')? "White " : "Black ";
+                                        king_red.setPosition(k_y*size, k_x*size);
+                                        checked.play();
+                                        block_check = play_board.blockCheckPossible(currentPlayer->getColour(), count_select,chosen_pieces,moves,attack_x,attack_y,k_x,k_y);
+                                    }
+
+                                    king_checkmate = play_board.isCheckmate(currentPlayer->getColour());
+                                    if(!block_check || double_check){
+                                        if(king_check){
+                                            if((king_checkmate == true)){
+                                                guiCheckmate();
+                                                window.close();
+
+                                            }
+                                        }
+                                    }
+                                    
                                     
                                     piece_selected = false;
                                     switchTurn();
@@ -695,16 +621,14 @@ void Game::start(){
                             }else{
                                 f[mp].setPosition(Vector2f(piece_x*size +offset, piece_y*size+offset) );
                             }
-                            //play_board.printBoard();
                         }else{
                             /*
-                                THIS IS FOR WHEN KING IS IN CHECK AND A MOVE NEEDS TO BE MADE TO GET IT OUT OF CHECK.
-                                EITHER BY BLOCKING THE ATTACKING PIECE
-                                KILLING THE ATTAKCING PIECE
-                                MOVING KING TO SAFETY.
+                                this block of code is for when king is in check
+                                either by blocking the attacking piece
+                                taking the attacking piece
+                                moving king to safety(if double checked or not)
                             */
                             
-                            std::cout << "inside normal check\n";
                             isMove = false;
                             Vector2f p = f[mp].getPosition() + Vector2f(size/2,size/2);           //selected sprite's position
                             Vector2f newPos = Vector2f(size*int(p.x/size)+offset,size*int(p.y/size)+offset);        //new position of sprite
@@ -713,14 +637,12 @@ void Game::start(){
                                 isValid_M = play_board.isValidMoveB(piece_y, piece_x, dest.second, dest.first, currentPlayer->getColour());
                                 if(currentPlayer->getColour()== 'W'){
                                     king_safety = play_board.pieceBlockingCheck(piece_y, piece_x, dest.second, dest.first,  'B');
-                                    std::cout << king_check << '\n';
                                 }else if(currentPlayer->getColour() =='B'){
                                     king_safety = play_board.pieceBlockingCheck(piece_y, piece_x, dest.second, dest.first,  'W');
                                 }
 
                             for(int i{}; i < count_select; ++i){
                                     if(selected_pair == chosen_pieces[i] && std::pair {dest.second,dest.first} == moves[i]){
-                                        std::cout << "move in list selected\n";
                                         list_move = true;
                                         break;
                                     }
@@ -734,13 +656,11 @@ void Game::start(){
                                 if(!king_safety){
                                     isValid_M = false;
                                 }
-                                std::cout << "before isValid_M block \n";
                                 if(isValid_M && (enemy || play_board.getSquare(dest.second,dest.first)== nullptr)){// if move is valid
                                     if(play_board.getSquare(dest.second,dest.first) == nullptr)
                                         move_piece.play();
                                     else
                                         capture_piece.play();
-                                    std::cout << "inside isValid_M block \n";
                                     guiCapture(newPos,add_x_w,add_x_b);    
                                     //enpassant code start      
                                     if(piece_x+1 < 8 && piece_x-1 > 0){
@@ -756,7 +676,6 @@ void Game::start(){
                                         if(play_board.getSymbolB(piece_y,piece_x)== 'P' && currentPlayer->getColour()=='W' && black_pawn_ep){
                                             enPassantCapture(newPos,add_x_w,add_x_b);
                                         }else if( play_board.getSymbolB(piece_y,piece_x) == 'p' && currentPlayer->getColour()=='B' && white_pawn_ep){
-                                            std::cout << "inside else if\n";
                                             enPassantCapture(newPos,add_x_w,add_x_b);
                                         }
                                     }
@@ -774,45 +693,8 @@ void Game::start(){
                                     play_board.movePiece(piece_y,piece_x,dest.second, dest.first);
                                     play_board.printBoard();
                                     f[mp].setPosition(newPos);
-                                    
-                                    //check
-                                    
-                                    
-                                    king_check = play_board.isCheck(currentPlayer->getColour(), attack_x, attack_y, k_x, k_y, double_check);
-                                    std::cout << "when king is checked\n";
-                                    std::cout << king_check << '\n';
-                                    //stalemate and check statement
-                                    if(!king_check){
-                                        shape.setPosition(-size, -size);
-                                        stale_mate = play_board.isStalemate(currentPlayer->getColour(), k_x, k_y);
-                                        std::cout << "stale_mate:" << stale_mate << '\n';
-                                        if(stale_mate == true){
-                                            guiStalemate();
-                                            window.close();
 
-                                        }
-                                    }else{
-                                        std::string k_colour = (currentPlayer->getColour() != 'W')? "White " : "Black ";
-                                        shape.setPosition(k_y*size, k_x*size);
-                                        checked.play();
-                                        block_check = play_board.blockCheckPossible(currentPlayer->getColour(), count_select,chosen_pieces,moves,attack_x,attack_y,k_x,k_y);
-                                        std::cout << k_colour+"is in check\n";
-                                        
-                                    }
-                                    
-                                    //checkmate
-                                    king_checkmate = play_board.isCheckmate(currentPlayer->getColour());
-                                    std::cout << "king check : " << king_check << '\n';
-                                    std::cout << "king_checkmate : " << king_checkmate << '\n';
-                                    if(king_check || double_check){
-                                        std::cout << king_checkmate && !block_check << '\n'; 
-                                        if(king_checkmate == true /*&& !block_check*/){
-                                            guiCheckmate();
-                                            window.close();
-
-                                        }
-                                    }
-                                    
+                                    //promotion
                                     for(int i=0; i < 8; ++i){
                                         if(play_board.getSquare(0,i)!= nullptr && play_board.getSymbolB(0,i)=='P'){
                                             promote_white = true;
@@ -823,9 +705,38 @@ void Game::start(){
                                             break;
                                         }      
                                     }
-                                    
+
                                     if(promote_white||promote_black){
                                         promoteMenu(promote_black,promote_white,dest,mp);
+                                    }
+                                    
+                                    //check
+                                    king_check = play_board.isCheck(currentPlayer->getColour(), attack_x, attack_y, k_x, k_y, double_check);
+                                    //stalemate and check statement
+                                    if(!king_check){
+                                        king_red.setPosition(-size, -size);
+                                        stale_mate = play_board.isStalemate(currentPlayer->getColour(), k_x, k_y);
+                                        if(stale_mate == true){
+                                            guiStalemate();
+                                            window.close();
+
+                                        }
+                                    }else{
+                                        std::string k_colour = (currentPlayer->getColour() != 'W')? "White " : "Black ";
+                                        king_red.setPosition(k_y*size, k_x*size);
+                                        checked.play();
+                                        block_check = play_board.blockCheckPossible(currentPlayer->getColour(), count_select,chosen_pieces,moves,attack_x,attack_y,k_x,k_y);
+                                    }
+                                    
+                                    //checkmate
+                                    king_checkmate = play_board.isCheckmate(currentPlayer->getColour());
+                                    if(!block_check || double_check){
+                                        if(king_check){
+                                            if(king_checkmate == true){
+                                                guiCheckmate();
+                                                window.close();
+                                            }
+                                        }
                                     }
                                     
                                     piece_selected = false;
@@ -839,10 +750,6 @@ void Game::start(){
                             }else{
                                 f[mp].setPosition(Vector2f(piece_x*size +offset, piece_y*size+offset) );
                             }
-                            
-                            //maybe put check/stalemate/checkmate here(?)
-       
-                            //play_board.printBoard();
 
                         }
                     
@@ -860,7 +767,7 @@ void Game::start(){
         window.setVerticalSyncEnabled(true);
         window.draw(board);//draws board
         window.draw(Sidebar);
-        window.draw(shape);
+        window.draw(king_red);
         for(int i{0}; i < 32; ++i) window.draw(f[i]);//draws pieces
         
         window.display();
