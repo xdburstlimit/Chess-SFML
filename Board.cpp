@@ -635,13 +635,14 @@ bool Board::blockCheckPossible(char colour,int& count_select,std::pair<int,int> 
 
 
     //seperate king logic to get rid of check
-    
+    /*
     ++count_move;
     ++count_select;
+    */
     if(k_x - 1 >= 0){
         if((k_y - 1)>=0){
             if(getSquare(k_x - 1, k_y - 1) == nullptr || ( getSquare(k_x - 1, k_y - 1) != nullptr && getColourB(k_x - 1, k_y - 1) != colour )){
-                if(isKingSafeB(k_x, k_y, k_x - 1, k_y - 1)){
+                if(isKingSafeB(k_x, k_y, k_x - 1, k_y - 1) && isValidMoveB(k_x, k_y,k_x - 1, k_y - 1, enemy_colour)){
                     pieces_block[count_select] = std::make_pair(k_x,k_y);// adding king
                     ++count_select;
                     moves[count_move]= std::make_pair(k_x - 1, k_y - 1);
@@ -652,7 +653,7 @@ bool Board::blockCheckPossible(char colour,int& count_select,std::pair<int,int> 
         }
         if(k_y + 1 < 8){
             if(getSquare(k_x - 1, k_y + 1) == nullptr || ( getSquare(k_x - 1, k_y + 1) != nullptr && getColourB(k_x - 1, k_y + 1) != colour )){
-                if(isKingSafeB(k_x, k_y, k_x - 1, k_y + 1)){
+                if(isKingSafeB(k_x, k_y, k_x - 1, k_y + 1)&& isValidMoveB(k_x, k_y,k_x - 1, k_y + 1, enemy_colour)){
                     pieces_block[count_select] = std::make_pair(k_x,k_y);// adding king
                     ++count_select;
                     moves[count_move]= std::make_pair(k_x - 1, k_y + 1);
@@ -661,7 +662,7 @@ bool Board::blockCheckPossible(char colour,int& count_select,std::pair<int,int> 
             }  
         }
         if(getSquare(k_x - 1, k_y) == nullptr || ( getSquare(k_x - 1, k_y) != nullptr && getColourB(k_x - 1,k_y) != colour )){
-            if(isKingSafeB(k_x, k_y, k_x - 1, k_y)){
+            if(isKingSafeB(k_x, k_y, k_x - 1, k_y)&& isValidMoveB(k_x, k_y,k_x - 1, k_y , enemy_colour)){
                 pieces_block[count_select] = std::make_pair(k_x,k_y);// adding king
                 ++count_select;
                 moves[count_move]= std::make_pair(k_x - 1, k_y);
@@ -674,7 +675,7 @@ bool Board::blockCheckPossible(char colour,int& count_select,std::pair<int,int> 
         
         if((k_y - 1)>= 0){
             if(getSquare(k_x + 1, k_y - 1) == nullptr || ( getSquare(k_x + 1, k_y - 1) != nullptr && getColourB(k_x + 1,k_y - 1) != colour )){
-                if(isKingSafeB(k_x, k_y, k_x + 1, k_y - 1)){
+                if(isKingSafeB(k_x, k_y, k_x + 1, k_y - 1)&& isValidMoveB(k_x, k_y,k_x + 1, k_y - 1, enemy_colour)){
                     pieces_block[count_select] = std::make_pair(k_x,k_y);// adding king
                     ++count_select;
                     moves[count_move]= std::make_pair(k_x + 1, k_y - 1);
@@ -683,8 +684,8 @@ bool Board::blockCheckPossible(char colour,int& count_select,std::pair<int,int> 
             }
         }
         if(k_y + 1 < 8){
-            if(getSquare(k_x + 1, k_y + 1) == nullptr || ( getSquare(k_x + 1, k_y - 1) != nullptr && getColourB(k_x + 1,k_y + 1) != colour )){
-                if(isKingSafeB(k_x, k_y, k_x + 1, k_y + 1 )){
+            if(getSquare(k_x + 1, k_y + 1) == nullptr || ( getSquare(k_x + 1, k_y + 1) != nullptr && getColourB(k_x + 1,k_y + 1) != colour )){
+                if(isKingSafeB(k_x, k_y, k_x + 1, k_y + 1 )&& isValidMoveB(k_x, k_y,k_x + 1, k_y + 1, enemy_colour)){
                     pieces_block[count_select] = std::make_pair(k_x,k_y);// adding king
                     ++count_select;
                     moves[count_move]= std::make_pair(k_x + 1, k_y + 1);
@@ -693,7 +694,7 @@ bool Board::blockCheckPossible(char colour,int& count_select,std::pair<int,int> 
             }    
         }
         if(getSquare(k_x + 1, k_y) == nullptr || ( getSquare(k_x + 1, k_y) != nullptr && getColourB(k_x + 1,k_y) != colour )){
-            if(isKingSafeB(k_x, k_y, k_x + 1, k_y)){
+            if(isKingSafeB(k_x, k_y, k_x + 1, k_y)&& isValidMoveB(k_x, k_y,k_x + 1, k_y ,enemy_colour)){
                 pieces_block[count_select] = std::make_pair(k_x,k_y);// adding king
                 ++count_select;
                 
@@ -707,7 +708,7 @@ bool Board::blockCheckPossible(char colour,int& count_select,std::pair<int,int> 
 
     if(k_y - 1 >= 0){//k_x
         if(getSquare(k_x, k_y - 1) == nullptr || ( getSquare(k_x, k_y - 1) != nullptr && getColourB(k_x,k_y - 1) != colour )){
-            if(isKingSafeB(k_x, k_y, k_x , k_y - 1)){
+            if(isKingSafeB(k_x, k_y, k_x , k_y - 1)&& isValidMoveB(k_x, k_y,k_x , k_y - 1, enemy_colour)){
                 pieces_block[count_select] = std::make_pair(k_x,k_y);// adding king
                 ++count_select;
                 moves[count_move]= std::make_pair(k_x, k_y - 1);
@@ -717,7 +718,7 @@ bool Board::blockCheckPossible(char colour,int& count_select,std::pair<int,int> 
     }
     if(k_y + 1 < 8){
         if(getSquare(k_x, k_y + 1) == nullptr || ( getSquare(k_x, k_y + 1) != nullptr && getColourB(k_x,k_y + 1) != colour )){
-            if(isKingSafeB(k_x, k_y, k_x , k_y + 1)){
+            if(isKingSafeB(k_x, k_y, k_x , k_y + 1)&& isValidMoveB(k_x, k_y,k_x , k_y + 1, enemy_colour)){
                 pieces_block[count_select] = std::make_pair(k_x,k_y);// adding king
                 ++count_select;
                 moves[count_move]= std::make_pair(k_x, k_y + 1);

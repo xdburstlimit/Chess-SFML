@@ -465,13 +465,13 @@ void Game::start(){
                                         mp = i;
                                         dx = pos.x - f[i].getPosition().x;
                                         dy = pos.y - f[i].getPosition().y;
+                                        isMove = true;
+                                        piece_x = k_y;
+                                        piece_y = k_x;
+                                        piece_selected = true;
                                         break;
                                     }
                                 }
-                                isMove = true;
-                                piece_x = k_y;
-                                piece_y = k_x;
-                                piece_selected = true;
                             }
                             double_check = false;
                             
@@ -484,6 +484,11 @@ void Game::start(){
                             }
                         
                             selected_pair = std::make_pair(temp_y, temp_x);
+
+                            for(int i = 0; i < count_select; ++i){
+                                std::cout << chosen_pieces[i].first << ", " << chosen_pieces[i].second << " to " << moves[i].first << ", " << moves[i].second << '\n';
+                                
+                            }
 
                             for(int i{}; i < count_select;++i){
                                 if(selected_pair == chosen_pieces[i]){
@@ -498,14 +503,14 @@ void Game::start(){
                                         mp = i;
                                         dx = pos.x - f[i].getPosition().x;
                                         dy = pos.y - f[i].getPosition().y;
+                                        isMove = true;
+                                        piece_x = selected_pair.second;
+                                        piece_y = selected_pair.first;
+                                        piece_selected = true;
                                         break;
                                     }
                                 }
-                                isMove = true;
-                                piece_x = selected_pair.second;
-                                piece_y = selected_pair.first;
-                                
-                                piece_selected = true;
+
                             }
                         }
                     }
@@ -609,8 +614,9 @@ void Game::start(){
                                         }
                                     }
                                     
-                                    
                                     piece_selected = false;
+                                    valid_piece = false;
+                                    isValid_M = false;
                                     switchTurn();
                                     enPassantRemoval(dest.second, dest.first);
 
@@ -745,6 +751,7 @@ void Game::start(){
                                     switchTurn();
                                     enPassantRemoval(dest.second, dest.first);
                                 }else if(!isValid_M){// this block of code makes the piece snap back to position if invalid move
+                                    
                                     f[mp].setPosition(Vector2f(piece_x*size +offset, piece_y*size+offset) );
                                 }
                             }else{
