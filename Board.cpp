@@ -478,6 +478,16 @@ bool Board::isStalemate(char colour, int k_x, int k_y){
          if(b1 == false && b2 == false && b3 == false && b4 == false && b5 == false && b6 == false && b7 == false && b8 == false){
             stale_mate = true;
         }
+        int king_count{};
+        for(int i{};i < 8; ++i){
+            for(int j{};j < 8; ++j){
+                if(getSquare(i,j)!=nullptr)
+                    ++king_count;
+            }
+        }
+        if(king_count == 2){
+            stale_mate = true;
+        }
 
     
     return stale_mate;
